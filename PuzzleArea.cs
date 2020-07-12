@@ -12,11 +12,15 @@ namespace Puzzle15
 {
     public partial class PuzzleArea : Form
     {
+        Random rand = new Random();
+        List<Point> InitialLocations = new List<Point>();
+
         public PuzzleArea()
         {
             InitializeComponent();
             InitializePuzzleArea();
             InitializeBlocks();
+            ShuffleBlocks();
         }                   
 
 
@@ -25,7 +29,6 @@ namespace Puzzle15
             this.BackColor = Color.Orange;
             this.Text = "Puzzle15";
             this.ClientSize = new Size(500, 500);
-
         }
 
         private void InitializeBlocks()
@@ -47,6 +50,7 @@ namespace Puzzle15
 
                     //block.Click += new EventHandler(Block_Click);
                     block.Click += Block_Click;
+                    InitialLocations.Add(block.Location);
 
                     if (blockCount==16)
                     {
@@ -69,8 +73,8 @@ namespace Puzzle15
             if (IsAdjacent(block))
             {
                 SwapBlocks(block);
-            }
-            SwapBlocks(block);
+                CheckForWin();
+            }            
         }
 
         private void SwapBlocks(Button block)
@@ -97,10 +101,55 @@ namespace Puzzle15
             }
             else
             {
-                return false;
-               
+                return false;              
+            }
+        }
+        
+        private void ShuffleBlocks()
+        {
+            int randNumber;
+            string blockName;
+            Button block;
+
+            for (int i = 0; i < 100; i++)
+            {
+                randNumber = rand.Next(1, 16);
+                blockName = "Block" + randNumber.ToString();
+                block = (Button)this.Controls[blockName];
+                SwapBlocks(block);
             }
         }
 
+        private void NewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShuffleBlocks();
+        }
+
+        private void CheckForWin()
+        {
+            string blockName;
+            Button block;
+
+            for (int i = 1; i < 16; i++)
+            {
+                blockName = "block" + i.ToString();
+                block = (Button)this.Controls[blockName];
+                if (block.Location != InitialLocations[i - 1])
+                {
+                    return;
+                }                
+            }
+            PuzzleSolved();
+        }
+
+        private void PuzzleSolved()
+        {
+            MessageBox.Show("You solved that! :)");
+        }
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
